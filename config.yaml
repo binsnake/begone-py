@@ -1,0 +1,68 @@
+# begone — anti-spam config. All thresholds are tunable without code changes.
+
+# What action to take when a spammer is confirmed.
+#   dry_run  -> only log + alert the mod channel (NO ban). Start here.
+#   ban      -> ban the user and delete their flagged messages.
+#   kick     -> kick the user and delete their flagged messages.
+action: dry_run
+
+# Delete the offending messages even in dry_run? (false = leave them for review)
+delete_on_action: false
+
+# When action is `ban`, also delete the offender's messages server-wide from the
+# last N days. Discord allows 0-7. 0 = keep messages, 1 = last 24h, 7 = last week.
+ban_delete_message_days: 1
+
+scan:
+  # When to run the (relatively expensive) OCR + perceptual-hash check:
+  #   burst  -> only after a user crosses the burst thresholds below. Cheapest;
+  #             matches real spam behaviour. An image match is then required to
+  #             act (unless fingerprint.require_image_match is false). Recommended.
+  #   always -> scan EVERY image as it is posted; a single scam-matching image is
+  #             enough to act, no burst needed. Most thorough, most CPU.
+  mode: burst
+
+cache:
+  # Cache OCR/phash verdicts per image URL (bounded LRU) so duplicate / re-posted
+  # images are not re-downloaded and re-processed.
+  enabled: true
+  max_entries: 1024
+
+burst:
+  # Sliding window (seconds) over which a user's image posts are correlated.
+  window_seconds: 90
+  # Trigger evaluation if the user posted images in at least this many
+  # DISTINCT public channels within the window...
+  min_distinct_channels: 2
+  # ...OR posted at least this many image messages total within the window.
+  min_image_messages: 3
+
+fingerprint:
+  # An image is a "scam match" if EITHER condition below holds.
+
+  # OCR: minimum number of fingerprint keywords/phrases found in the image text.
+  min_keyword_hits: 3
+  # Perceptual hash: max Hamming distance (0-64) to any reference sample in
+  # samples/. Lower = stricter. ~10 tolerates recompression/cropping.
+  max_phash_distance: 12
+
+  # Require an actual scam-image match before acting. If false, the burst
+  # heuristic alone is enough (more aggressive — not recommended).
+  require_image_match: true
+
+exemptions:
+  # Users with any of these permissions are never flagged.
+  skip_admins: true
+  skip_moderators: true   # anyone with manage_messages / ban_members / kick_members
+  # Role IDs that are always exempt (e.g. trusted/verified roles).
+  exempt_role_ids: []
+  # User IDs that are always exempt.
+  exempt_user_ids: []
+  # Ignore other bots entirely.
+  skip_bots: true
+
+ocr:
+  # Upscale factor before OCR — photos of screens are low-DPI; 2x helps a lot.
+  upscale: 2
+  # Max image bytes to download/process (skip huge files).
+  max_bytes: 10485760
