@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "begone-py"
+version = "0.1.0"
+description = "Discord bot that auto-detects and bans crypto-casino image spam via OCR + perceptual hashing"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { file = "LICENSE" }
+keywords = ["discord", "bot", "anti-spam", "moderation", "ocr", "perceptual-hash"]
+authors = [{ name = "binsnake" }]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Operating System :: OS Independent",
+    "Topic :: Communications :: Chat",
+    "Intended Audience :: System Administrators",
+]
+dependencies = [
+    "discord.py>=2.3,<3.0",
+    "aiohttp>=3.9",
+    "Pillow>=10.0",
+    "pytesseract>=0.3.10",
+    "ImageHash>=4.3",
+    "PyYAML>=6.0",
+    "python-dotenv>=1.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/binsnake/begone-py"
+Repository = "https://github.com/binsnake/begone-py"
+Issues = "https://github.com/binsnake/begone-py/issues"
+
+[project.scripts]
+# `begone` runs the bot using config.yaml / .env / samples from the current dir.
+begone = "begone.bot:run"
+
+[tool.setuptools]
+packages = ["begone"]

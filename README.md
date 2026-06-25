@@ -37,6 +37,13 @@ cp .env.example .env      # then edit it (see below)
 python main.py
 ```
 
+Or install it as a package and use the `begone` command (it reads `config.yaml`, `.env`, and `samples/` from the directory you run it in):
+
+```sh
+pip install -e .
+begone
+```
+
 ### Discord bot setup
 1. Create an app at <https://discord.com/developers/applications> → **Bot** → **Reset Token** to reveal the token.
 2. On the **Bot** page, enable both privileged intents: **Message Content** and **Server Members**.

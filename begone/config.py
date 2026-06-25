@@ -15,7 +15,20 @@ import yaml
 from dotenv import load_dotenv
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-SAMPLES_DIR = PROJECT_ROOT / "samples"
+
+
+def _resolve(name: str) -> Path:
+    """Prefer a file/dir in the current working directory, fall back to the
+    packaged location. Lets both `python main.py` (run from a clone) and an
+    installed `begone` command (run from a project dir) find config + samples.
+    """
+    cwd_path = Path.cwd() / name
+    if cwd_path.exists():
+        return cwd_path
+    return PROJECT_ROOT / name
+
+
+SAMPLES_DIR = _resolve("samples")
 
 
 @dataclass
@@ -79,7 +92,7 @@ class Config:
 
     @classmethod
     def load(cls, yaml_path: Path | None = None) -> "Config":
-        load_dotenv(PROJECT_ROOT / ".env")
+        load_dotenv(_resolve(".env"))
 
         token = os.environ.get("DISCORD_TOKEN", "").strip()
         if not token:
@@ -96,7 +109,7 @@ class Config:
         if tesseract_cmd is None:
             tesseract_cmd = shutil.which("tesseract")  # auto-discover on PATH
 
-        path = yaml_path or (PROJECT_ROOT / "config.yaml")
+        path = yaml_path or _resolve("config.yaml")
         raw = {}
         if path.exists():
             raw = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
